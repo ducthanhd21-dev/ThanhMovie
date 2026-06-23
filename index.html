@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ThanhMovie - Xem phim trực tuyến miễn phí chất lượng cao, phim bộ, phim lẻ, phim hoạt hình mới nhất.">
+    <meta name="keywords" content="xem phim, phim online, phim bộ, phim lẻ, phim mới, ThanhMovie">
+    <meta name="referrer" content="no-referrer" />
+    <title>ThanhMovie - Xem Phim Trực Tuyến</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=10">
+</head>
+<body>
+    <div id="app">
+        <!-- ========== HEADER ========== -->
+        <header class="main-header" id="main-header">
+            <div class="header-container">
+                <a href="#home" class="logo">
+                    <i class="fas fa-film logo-icon"></i>
+                    <span class="logo-text">Thanh<span class="logo-accent">Movie</span></span>
+                </a>
+
+                <nav class="main-nav" id="main-nav">
+                    <ul class="nav-links">
+                        <li><a href="#home" class="nav-link active" data-page="home"><i class="fas fa-home"></i> Trang Chủ</a></li>
+                        <li class="nav-dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-page="genre"><i class="fas fa-th-list"></i> Thể Loại <i class="fas fa-chevron-down"></i></a>
+                            <div class="dropdown-menu" id="genre-dropdown">
+                                <!-- Populated by JS -->
+                            </div>
+                        </li>
+                        <li class="nav-dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-page="country"><i class="fas fa-globe"></i> Quốc Gia <i class="fas fa-chevron-down"></i></a>
+                            <div class="dropdown-menu" id="country-dropdown">
+                                <!-- Populated by JS -->
+                            </div>
+                        </li>
+                        <li><a href="#category/phim-bo" class="nav-link" data-page="phim-bo"><i class="fas fa-tv"></i> Phim Bộ</a></li>
+                        <li><a href="#category/phim-le" class="nav-link" data-page="phim-le"><i class="fas fa-film"></i> Phim Lẻ</a></li>
+                        <li><a href="#category/hoat-hinh" class="nav-link" data-page="hoat-hinh"><i class="fas fa-dragon"></i> Hoạt Hình</a></li>
+                        <li><a href="#favorites" class="nav-link" data-page="favorites"><i class="fas fa-heart"></i> Yêu Thích</a></li>
+                        <li><a href="#history" class="nav-link" data-page="history"><i class="fas fa-history"></i> Lịch Sử</a></li>
+                    </ul>
+                </nav>
+
+                <div class="header-actions">
+                    <div class="search-container" id="search-container">
+                        <button class="search-toggle" id="search-toggle">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <div class="search-box" id="search-box">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search" style="color: var(--text-muted); margin-left: 4px;"></i>
+                                <input type="text" id="search-input" placeholder="Tìm kiếm phim..." autocomplete="off">
+                                <button class="search-clear" id="search-clear"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="search-dropdown" id="search-dropdown"></div>
+                        </div>
+                    </div>
+                    <button class="mobile-menu-btn" id="mobile-menu-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <main id="main-content">
+
+            <!-- HOME PAGE -->
+            <section id="home-page" class="page active">
+                <!-- Hero Banner -->
+                <div class="hero-banner" id="hero-banner">
+                    <div class="hero-slider" id="hero-slider"></div>
+                    <div class="hero-controls">
+                        <button class="hero-btn hero-prev" id="hero-prev"><i class="fas fa-chevron-left"></i></button>
+                        <div class="hero-dots" id="hero-dots"></div>
+                        <button class="hero-btn hero-next" id="hero-next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Movie Sections -->
+                <div class="container">
+                    <div class="movie-section" id="section-hot">
+                        <div class="section-header">
+                            <h2><i class="fas fa-fire"></i> Phim Chiếu Rạp (Hot)</h2>
+                            <a href="#category/phim-chieu-rap" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="movie-grid" id="grid-hot"></div>
+                    </div>
+
+                    <div class="movie-section" id="section-new">
+                        <div class="section-header">
+                            <h2><i class="fas fa-bolt"></i> Phim Mới Cập Nhật</h2>
+                            <a href="#category/phim-moi-cap-nhat" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="movie-grid" id="grid-new"></div>
+                    </div>
+
+                    <div class="movie-section" id="section-series">
+                        <div class="section-header">
+                            <h2><i class="fas fa-tv"></i> Phim Bộ Mới</h2>
+                            <a href="#category/phim-bo" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="movie-grid" id="grid-series"></div>
+                    </div>
+
+                    <div class="movie-section" id="section-single">
+                        <div class="section-header">
+                            <h2><i class="fas fa-film"></i> Phim Lẻ Mới</h2>
+                            <a href="#category/phim-le" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="movie-grid" id="grid-single"></div>
+                    </div>
+
+                    <div class="movie-section" id="section-anime">
+                        <div class="section-header">
+                            <h2><i class="fas fa-dragon"></i> Hoạt Hình</h2>
+                            <a href="#category/hoat-hinh" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="movie-grid" id="grid-anime"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CATEGORY PAGE -->
+            <section id="category-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1 id="category-title"><i class="fas fa-list"></i> Danh Sách Phim</h1>
+                    </div>
+                    <div class="movie-grid" id="category-grid"></div>
+                    <div class="pagination" id="category-pagination"></div>
+                </div>
+            </section>
+
+            <!-- DETAIL PAGE -->
+            <section id="detail-page" class="page">
+                <div id="detail-content"></div>
+            </section>
+
+            <!-- WATCH PAGE -->
+            <section id="watch-page" class="page">
+                <div class="container">
+                    <div id="player-wrapper">
+                        <div class="player-container" id="player-container">
+                            <div class="player-loading" id="player-loading">
+                                <div class="spinner"></div>
+                                <p>Đang tải phim...</p>
+                            </div>
+                            <video id="video-player" controls crossorigin="anonymous"></video>
+                            <iframe id="iframe-player" allowfullscreen allow="autoplay; encrypted-media" style="display:none;"></iframe>
+                        </div>
+                        <div class="player-info">
+                            <h1 id="watch-title"></h1>
+                            <p id="watch-episode-name"></p>
+                        </div>
+                    </div>
+
+                    <div class="server-section" id="server-section">
+                        <h3><i class="fas fa-server"></i> Chọn Server</h3>
+                        <div class="server-list" id="server-list"></div>
+                    </div>
+
+                    <div class="episode-section" id="episode-section">
+                        <h3><i class="fas fa-list-ol"></i> Danh Sách Tập</h3>
+                        <div class="episode-list" id="episode-list"></div>
+                    </div>
+
+                    <div id="watch-detail-info"></div>
+                </div>
+            </section>
+
+            <!-- FAVORITES PAGE -->
+            <section id="favorites-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1><i class="fas fa-heart"></i> Phim Yêu Thích</h1>
+                    </div>
+                    <div class="empty-state" id="favorites-empty" style="display:none;">
+                        <i class="fas fa-heart-broken"></i>
+                        <p>Bạn chưa có phim yêu thích nào</p>
+                        <a href="#home" class="btn-primary">Khám phá phim</a>
+                    </div>
+                    <div class="movie-grid" id="favorites-grid"></div>
+                </div>
+            </section>
+
+            <!-- HISTORY PAGE -->
+            <section id="history-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1><i class="fas fa-history"></i> Lịch Sử Xem</h1>
+                        <button class="btn-clear-history" id="clear-history"><i class="fas fa-trash"></i> Xóa lịch sử</button>
+                    </div>
+                    <div class="empty-state" id="history-empty" style="display:none;">
+                        <i class="fas fa-clock"></i>
+                        <p>Bạn chưa xem phim nào</p>
+                        <a href="#home" class="btn-primary">Khám phá phim</a>
+                    </div>
+                    <div class="movie-grid" id="history-grid"></div>
+                </div>
+            </section>
+
+            <!-- SEARCH RESULTS PAGE -->
+            <section id="search-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1 id="search-page-title"><i class="fas fa-search"></i> Kết quả tìm kiếm</h1>
+                    </div>
+                    <div class="movie-grid" id="search-grid"></div>
+                    <div class="pagination" id="search-pagination"></div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ========== FOOTER ========== -->
+        <footer class="main-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <a href="#home" class="logo">
+                            <i class="fas fa-film logo-icon"></i>
+                            <span class="logo-text">Thanh<span class="logo-accent">Movie</span></span>
+                        </a>
+                        <p>Xem phim trực tuyến miễn phí với chất lượng cao. Kho phim đa dạng từ phim bộ, phim lẻ đến hoạt hình.</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Danh Mục</h4>
+                        <ul>
+                            <li><a href="#category/phim-bo">Phim Bộ</a></li>
+                            <li><a href="#category/phim-le">Phim Lẻ</a></li>
+                            <li><a href="#category/hoat-hinh">Hoạt Hình</a></li>
+                            <li><a href="#category/tv-shows">TV Shows</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Thể Loại Hot</h4>
+                        <ul>
+                            <li><a href="#genre/hanh-dong">Hành Động</a></li>
+                            <li><a href="#genre/tinh-cam">Tình Cảm</a></li>
+                            <li><a href="#genre/hai-huoc">Hài Hước</a></li>
+                            <li><a href="#genre/kinh-di">Kinh Dị</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Quốc Gia</h4>
+                        <ul>
+                            <li><a href="#country/han-quoc">Hàn Quốc</a></li>
+                            <li><a href="#country/trung-quoc">Trung Quốc</a></li>
+                            <li><a href="#country/au-my">Âu Mỹ</a></li>
+                            <li><a href="#country/nhat-ban">Nhật Bản</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>Tác Giả : Anh Thành đẹp trai</p>
+                    <p>&copy; 2026 ThanhMovie. Dữ liệu phim được cung cấp bởi PhimAPI.com.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Back to Top -->
+        <button id="back-to-top" class="back-to-top" title="Lên đầu trang">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>Đang tải...</p>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7"></script>
+    <script src="app.js?v=10"></script>
+</body>
+</html>
