@@ -517,7 +517,7 @@ const HeroSlider = {
 const Player = {
   hlsInstance: null,
 
-  initHlsPlayer(url) {
+  initHlsPlayer(url, movie = null, episodeName = null) {
     const video = document.getElementById('video-player');
     const iframe = document.getElementById('iframe-player');
     const loading = document.getElementById('player-loading');
@@ -529,6 +529,14 @@ const Player = {
     if (loading) loading.style.display = 'flex';
 
     this.destroyPlayer();
+
+    // Time tracking logic
+    const savedTime = movie ? History.getProgress(movie.slug, episodeName) : 0;
+    video.ontimeupdate = () => {
+      if (movie && episodeName) {
+        History.saveProgress(movie, episodeName, video.currentTime);
+      }
+    };
 
     if (Hls.isSupported()) {
       const hls = new Hls({
@@ -543,6 +551,14 @@ const Player = {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         if (loading) loading.style.display = 'none';
+        if (savedTime > 0) {
+          const m = Math.floor(savedTime / 60);
+          const s = Math.floor(savedTime % 60);
+          const timeStr = `${m}:${s < 10 ? '0' + s : s}`;
+          if (confirm(`Bạn đang xem dở tập này ở phút ${timeStr}. Bạn có muốn tiếp tục xem không?`)) {
+            video.currentTime = savedTime;
+          }
+        }
         video.play().catch(() => {});
       });
 
@@ -569,6 +585,14 @@ const Player = {
       video.src = url;
       video.addEventListener('loadedmetadata', () => {
         if (loading) loading.style.display = 'none';
+        if (savedTime > 0) {
+          const m = Math.floor(savedTime / 60);
+          const s = Math.floor(savedTime % 60);
+          const timeStr = `${m}:${s < 10 ? '0' + s : s}`;
+          if (confirm(`Bạn đang xem dở tập này ở phút ${timeStr}. Bạn có muốn tiếp tục xem không?`)) {
+            video.currentTime = savedTime;
+          }
+        }
         video.play().catch(() => {});
       });
     } else {
@@ -578,7 +602,7 @@ const Player = {
     return true;
   },
 
-  initIframePlayer(url) {
+  initIframePlayer(url, movie = null, episodeName = null) {
     const video = document.getElementById('video-player');
     const iframe = document.getElementById('iframe-player');
     const loading = document.getElementById('player-loading');
@@ -591,6 +615,11 @@ const Player = {
       iframe.src = url;
     }
     if (loading) loading.style.display = 'none';
+
+    // Save minimal history for iframe
+    if (movie && episodeName) {
+      History.saveProgress(movie, episodeName, 5); // Dummy time 5s to trigger save
+    }
   },
 
   destroyPlayer() {
@@ -608,6 +637,68 @@ const Player = {
     if (iframe) {
       iframe.src = 'about:blank';
     }
+  },
+
+  toggleCinemaMode() {
+    const isCinema = document.body.classList.toggle('cinema-mode');
+    const btn = document.getElementById('btn-cinema');
+    if (btn) {
+      btn.innerHTML = isCinema ? '<i class="fas fa-lightbulb"></i> Bật Đèn' : '<i class="fas fa-lightbulb"></i> Tắt Đèn';
+    }
+  }
+};
+
+// ============================================================
+// HISTORY MODULE (Tiếp tục xem)
+// ============================================================
+const History = {
+  getHistory() {
+    try {
+      const data = localStorage.getItem('thanhMovie_history');
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveProgress(movie, episodeName, currentTime) {
+    if (!movie || !movie.slug) return;
+    
+    // Only save if watched at least 5 seconds
+    if (currentTime < 5) return;
+
+    let history = this.getHistory();
+    const index = history.findIndex(item => item.slug === movie.slug);
+    
+    const record = {
+      slug: movie.slug,
+      name: movie.name,
+      thumb_url: movie.thumb_url,
+      episode: episodeName,
+      time: currentTime,
+      timestamp: Date.now()
+    };
+
+    if (index > -1) {
+      history[index] = record;
+    } else {
+      history.unshift(record);
+    }
+
+    // Keep only last 20 movies
+    if (history.length > 20) {
+      history = history.slice(0, 20);
+    }
+
+    // Move to top
+    history.sort((a, b) => b.timestamp - a.timestamp);
+    localStorage.setItem('thanhMovie_history', JSON.stringify(history));
+  },
+
+  getProgress(slug, episodeName) {
+    const history = this.getHistory();
+    const record = history.find(item => item.slug === slug && item.episode === episodeName);
+    return record ? record.time : 0;
   }
 };
 
@@ -703,6 +794,12 @@ const Search = {
       return;
     }
 
+    const dropdown = document.getElementById('search-dropdown');
+    if (dropdown) {
+      dropdown.innerHTML = '<div class="search-no-result"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>';
+      dropdown.style.display = 'block';
+    }
+
     this.debounceTimer = setTimeout(async () => {
       try {
         const result = await API.searchMovies(keyword, 1);
@@ -712,7 +809,7 @@ const Search = {
       } catch {
         this.hideDropdown();
       }
-    }, CONFIG.SEARCH_DEBOUNCE);
+    }, 200);
   },
 
   renderDropdown(items, cdnBase) {
@@ -726,7 +823,7 @@ const Search = {
     }
 
     dropdown.innerHTML = items.map(movie => {
-      const thumbUrl = API.getImageUrl(movie.thumb_url, cdnBase ? `${cdnBase}/uploads/movies` : null);
+      const thumbUrl = API.getImageUrl(movie.thumb_url, cdnBase);
       return `
         <div class="search-result-item" onclick="Search.closeSearchBox(); Router.navigate('#movie/${movie.slug}')">
           <div class="search-result-poster">
@@ -734,8 +831,12 @@ const Search = {
           </div>
           <div class="search-result-info">
             <h4>${movie.name}</h4>
-            <p>${movie.origin_name || ''} ${movie.year ? '(' + movie.year + ')' : ''}</p>
-            <span>${movie.quality || 'HD'} • ${movie.lang || ''}</span>
+            <p>${movie.origin_name || ''}</p>
+            <div class="search-result-meta">
+              ${movie.year ? `<span class="badge-year">${movie.year}</span>` : ''}
+              ${movie.quality ? `<span class="badge-quality">${movie.quality}</span>` : ''}
+              ${movie.lang ? `<span class="badge-lang">${movie.lang}</span>` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -828,6 +929,41 @@ const HomePage = {
       
       const gridHot = document.getElementById('grid-hot');
       if (gridHot) gridHot.innerHTML = UI.renderGrid(hotItems.slice(0, 12), hotRes?.data?.APP_DOMAIN_CDN_IMAGE);
+
+      // Render Continue Watching
+      const historyItems = History.getHistory();
+      const sectionContinue = document.getElementById('section-continue');
+      const gridContinue = document.getElementById('grid-continue');
+      
+      if (historyItems && historyItems.length > 0 && sectionContinue && gridContinue) {
+        gridContinue.innerHTML = historyItems.slice(0, 6).map(movie => {
+          const thumbUrl = API.getImageUrl(movie.thumb_url, CONFIG.IMG_CDN);
+          const progressPercent = Math.min(100, Math.round((movie.time / 3000) * 100)); // Just a visual proxy if duration is unknown
+          return `
+            <div class="movie-card" onclick="Router.navigate('#watch/${movie.slug}/0/0')">
+              <div class="card-poster">
+                <img src="${thumbUrl}" alt="${movie.name}" loading="lazy">
+                <div class="card-overlay">
+                  <span class="card-quality">${movie.episode || 'Đang xem'}</span>
+                  <button class="play-btn" aria-label="Tiếp tục xem">
+                    <i class="fas fa-play"></i>
+                  </button>
+                </div>
+                <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2);">
+                  <div style="height:100%; width:${progressPercent}%; background:var(--accent-primary);"></div>
+                </div>
+              </div>
+              <div class="card-info">
+                <h3>${movie.name}</h3>
+                <p>Tiếp tục xem...</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+        sectionContinue.style.display = 'block';
+      } else if (sectionContinue) {
+        sectionContinue.style.display = 'none';
+      }
     } catch (error) {
       console.error('[ThanhMovie] HomePage load error:', error);
       UI.showToast('Không thể tải dữ liệu phim. Vui lòng thử lại.', 'error');
@@ -1157,12 +1293,12 @@ const WatchPage = {
       const embedUrl = episode.link_embed;
 
       if (m3u8Url && typeof Hls !== 'undefined') {
-        const success = Player.initHlsPlayer(m3u8Url);
+        const success = Player.initHlsPlayer(m3u8Url, movie, episode.name);
         if (!success && embedUrl) {
-          Player.initIframePlayer(embedUrl);
+          Player.initIframePlayer(embedUrl, movie, episode.name);
         }
       } else if (embedUrl) {
-        Player.initIframePlayer(embedUrl);
+        Player.initIframePlayer(embedUrl, movie, episode.name);
       } else {
         UI.showToast('Không tìm thấy nguồn phát.', 'error');
       }
