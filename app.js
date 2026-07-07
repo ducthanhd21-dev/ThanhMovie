@@ -7,7 +7,7 @@
 // 1. CONFIG
 // ============================================================
 const CONFIG = {
-  API_BASE: 'https://phimapi.com',
+  API_BASE: window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'https://phimapi.com' : '/phimapi',
   IMG_CDN: 'https://phimimg.com',
 
   GENRES: [
