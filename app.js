@@ -417,7 +417,10 @@ const HeroSlider = {
       return `
         <div class="hero-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
           <div class="hero-slide-bg">
-            <img src="${posterUrl}" alt="${name}" onerror="UI.handleImageError(this)">
+            <img src="${posterUrl}" alt="${name}" onerror="UI.handleImageError(this)" class="bg-blur">
+            <div class="bg-main-wrapper">
+               <img src="${posterUrl}" alt="${name}" onerror="UI.handleImageError(this)" class="bg-main">
+            </div>
           </div>
           <div class="hero-slide-content">
             <h1>${name}</h1>
@@ -1112,8 +1115,8 @@ const DetailPage = {
         return;
       }
 
-      const posterUrl = movie.poster_url || '';
-      const thumbUrl = movie.thumb_url || '';
+      const posterUrl = API.getImageUrl(movie.poster_url, null);
+      const thumbUrl = API.getImageUrl(movie.thumb_url, null);
       const isFav = Storage.isFavorite(movie.slug);
       const favIcon = isFav ? '❤️' : '🤍';
       const favText = isFav ? 'Bỏ yêu thích' : 'Yêu thích';
@@ -1149,12 +1152,12 @@ const DetailPage = {
 
       contentEl.innerHTML = `
         <div class="detail-backdrop">
-          <img src="${posterUrl}" alt="${movie.name}" onerror="UI.handleImageError(this)">
+          <img src="${thumbUrl}" alt="${movie.name}" onerror="UI.handleImageError(this)">
           <div class="detail-backdrop-overlay"></div>
         </div>
         <div class="detail-container">
           <div class="detail-poster">
-            <img src="${thumbUrl}" alt="${movie.name}" onerror="UI.handleImageError(this)">
+            <img src="${posterUrl}" alt="${movie.name}" onerror="UI.handleImageError(this)">
             <div class="detail-poster-actions">
               <button class="btn-favorite" onclick="DetailPage.toggleFavorite()" id="detail-fav-btn" data-slug="${movie.slug}">
                 <span class="fav-icon">${favIcon}</span> <span class="fav-text">${favText}</span>
@@ -1354,10 +1357,12 @@ const WatchPage = {
     const categories = (movie.category || []).map(c => c.name).join(', ') || 'N/A';
     const countries = (movie.country || []).map(c => c.name).join(', ') || 'N/A';
 
+    const posterUrl = API.getImageUrl(movie.poster_url, null);
+
     infoEl.innerHTML = `
       <div class="watch-info-card">
         <div class="watch-info-poster">
-          <img src="${movie.thumb_url || ''}" alt="${movie.name}" onerror="UI.handleImageError(this)">
+          <img src="${posterUrl}" alt="${movie.name}" onerror="UI.handleImageError(this)">
         </div>
         <div class="watch-info-details">
           <h3><a href="#movie/${movie.slug}">${movie.name}</a></h3>
