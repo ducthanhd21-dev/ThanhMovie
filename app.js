@@ -7,8 +7,8 @@
 // 1. CONFIG
 // ============================================================
 const CONFIG = {
-  API_BASE: window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'https://phimapi.com' : '/phimapi',
-  IMG_CDN: 'https://phimimg.com',
+  API_BASE: 'https://ophim1.com',
+  IMG_CDN: 'https://img.ophim.live/uploads/movies',
 
   GENRES: [
     { name: 'Hành Động', slug: 'hanh-dong' },
@@ -96,6 +96,9 @@ const API = {
     }
     let base = cdnBase || CONFIG.IMG_CDN;
     if (base.endsWith('/')) base = base.slice(0, -1);
+    if (!base.includes('uploads/movies')) {
+      base = base + '/uploads/movies';
+    }
     if (url.startsWith('/')) url = url.slice(1);
     return `${base}/${url}`;
   },
@@ -908,19 +911,7 @@ const HomePage = {
 
       console.log('[ThanhMovie] Parsed items:', newItems.length, seriesItems.length, singleItems.length, animeItems.length, hotItems.length);
 
-      const heroSlugs = ['huyen-thoai-linh-bep-anh-nuoi-thang-cap-thanh-huyen-thoai', 'dem-ngay-xa-me', 'ma-da-han-quoc-ho-nuot-nguoi', 'bai-hoc-dang-doi', 'bu-nhin-bong-dem'];
-      try {
-        const heroResults = await Promise.all(heroSlugs.map(slug => API.getMovieDetail(slug)));
-        const heroItems = heroResults.map(res => res?.movie).filter(m => m);
-        if (heroItems.length > 0) {
-          HeroSlider.init(heroItems, null);
-        } else {
-          HeroSlider.init(hotItems, hotRes?.data?.APP_DOMAIN_CDN_IMAGE || null);
-        }
-      } catch (e) {
-        console.error('Failed to load hero banner movies:', e);
-        HeroSlider.init(hotItems, hotRes?.data?.APP_DOMAIN_CDN_IMAGE || null);
-      }
+      HeroSlider.init(hotItems, hotRes?.data?.APP_DOMAIN_CDN_IMAGE || null);
 
       if (gridNew) gridNew.innerHTML = UI.renderGrid(newItems.slice(0, 12), null);
       if (gridSeries) gridSeries.innerHTML = UI.renderGrid(seriesItems.slice(0, 12), seriesRes?.data?.APP_DOMAIN_CDN_IMAGE);
