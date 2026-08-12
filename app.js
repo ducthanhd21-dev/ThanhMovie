@@ -7,8 +7,8 @@
 // 1. CONFIG
 // ============================================================
 const CONFIG = {
-  API_BASE: 'https://ophim1.com',
-  IMG_CDN: 'https://img.ophim.live/uploads/movies',
+  API_BASE: window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'https://phimapi.com' : '/phimapi',
+  IMG_CDN: 'https://phimimg.com',
 
   GENRES: [
     { name: 'Hành Động', slug: 'hanh-dong' },
@@ -96,9 +96,6 @@ const API = {
     }
     let base = cdnBase || CONFIG.IMG_CDN;
     if (base.endsWith('/')) base = base.slice(0, -1);
-    if (!base.includes('uploads/movies')) {
-      base = base + '/uploads/movies';
-    }
     if (url.startsWith('/')) url = url.slice(1);
     return `${base}/${url}`;
   },
