@@ -62,10 +62,18 @@
   --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.15);
 
   /* Transitions */
-  --transition: all 0.3s ease;
-  --transition-fast: all 0.15s ease;
-  --transition-slow: all 0.5s ease;
-  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition:        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                       box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                       background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                       border-color 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                       opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                       color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast:   transform 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+                       background-color 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+                       color 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+                       opacity 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   all 0.48s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Layout */
   --header-height: 70px;
@@ -482,7 +490,9 @@ input {
   font-size: 0.9rem;
   font-weight: 500;
   white-space: nowrap;
-  transition: var(--transition);
+  transition: color 0.18s ease,
+              background-color 0.18s ease,
+              transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .nav-link:hover,
@@ -491,8 +501,13 @@ input {
   background: var(--bg-glass);
 }
 
+.nav-link:hover {
+  transform: translateY(-1px);
+}
+
 .nav-link.active {
   color: var(--accent-primary);
+  transform: none;
 }
 
 .nav-link i {
@@ -994,20 +1009,39 @@ input {
   border-radius: var(--radius-full);
   border: none;
   cursor: pointer;
-  transition: var(--transition);
   box-shadow: var(--accent-glow);
   white-space: nowrap;
+  will-change: transform, box-shadow;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.18s ease;
+  border-radius: inherit;
 }
 
 .btn-primary:hover {
-  background: var(--accent-gradient-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.03);
   box-shadow: var(--accent-glow-strong);
   color: #fff;
 }
 
+.btn-primary:hover::after {
+  background: rgba(255,255,255,0.06);
+}
+
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
+  box-shadow: var(--accent-glow);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .btn-secondary {
@@ -1023,16 +1057,24 @@ input {
   border-radius: var(--radius-full);
   border: 1px solid var(--border-color);
   cursor: pointer;
-  transition: var(--transition);
   backdrop-filter: blur(10px);
   white-space: nowrap;
+  will-change: transform, border-color;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease;
 }
 
 .btn-secondary:hover {
   background: var(--bg-glass-hover);
   border-color: var(--border-color-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.03);
   color: var(--text-primary);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.97);
+  transition: transform 0.1s ease;
 }
 
 /* --- Hero Controls --- */
@@ -1171,15 +1213,23 @@ input {
   overflow: hidden;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  transition: var(--transition);
   cursor: pointer;
   position: relative;
+  will-change: transform, box-shadow;
+  transition: transform 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+              box-shadow 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.28s ease;
 }
 
 .movie-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-10px) scale(1.022);
   box-shadow: var(--shadow-lg), var(--shadow-glow);
-  border-color: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+.movie-card:active {
+  transform: translateY(-4px) scale(1.01);
+  transition: transform 0.12s ease;
 }
 
 .card-poster {
@@ -1192,11 +1242,12 @@ input {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .movie-card:hover .card-poster img {
-  transform: scale(1.08);
+  transform: scale(1.07);
 }
 
 .card-overlay {
@@ -1213,7 +1264,7 @@ input {
   justify-content: flex-end;
   padding: 12px;
   opacity: 0;
-  transition: var(--transition);
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .movie-card:hover .card-overlay {
@@ -1268,7 +1319,7 @@ input {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
+  transform: translate(-50%, -50%) scale(0.7);
   width: 56px;
   height: 56px;
   display: flex;
@@ -1279,7 +1330,9 @@ input {
   color: #fff;
   font-size: 1.2rem;
   opacity: 0;
-  transition: var(--transition);
+  will-change: transform, opacity;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--accent-glow-strong);
   z-index: 3;
 }
@@ -1290,7 +1343,8 @@ input {
 }
 
 .play-btn:hover {
-  transform: translate(-50%, -50%) scale(1.1) !important;
+  transform: translate(-50%, -50%) scale(1.15) !important;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
 .card-info {
