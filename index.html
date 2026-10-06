@@ -303,7 +303,59 @@
 
         <!-- Toast Container -->
         <div id="toast-container" class="toast-container"></div>
-    </div>
+
+        <!-- ===== PWA Install Banner (Android / Desktop) ===== -->
+        <div id="pwa-banner" class="pwa-banner" role="dialog" aria-label="Cài đặt ứng dụng" style="display:none;">
+            <div class="pwa-banner-icon">
+                <img src="/icons/icon-192.png" alt="ThanhMovie icon">
+            </div>
+            <div class="pwa-banner-text">
+                <strong>📲 Tải ThanhMovie về máy</strong>
+                <span>Xem phim nhanh hơn, không cần trình duyệt</span>
+            </div>
+            <div class="pwa-banner-actions">
+                <button class="pwa-btn-install" id="pwa-btn-install">
+                    <i class="fas fa-download"></i> Cài App
+                </button>
+                <button class="pwa-btn-dismiss" id="pwa-btn-dismiss" aria-label="Đóng">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== PWA iOS Install Modal ===== -->
+        <div id="pwa-ios-modal" class="pwa-ios-modal" role="dialog" aria-modal="true" aria-label="Hướng dẫn cài app iOS">
+            <div class="pwa-ios-modal-box">
+                <h3>📱 Cài ThanhMovie lên iPhone</h3>
+                <p>Chỉ 3 bước đơn giản để xem phim như app thật!</p>
+                <div class="pwa-ios-steps">
+                    <div class="pwa-ios-step">
+                        <div class="pwa-ios-step-num">1</div>
+                        <div class="pwa-ios-step-text">
+                            Bấm nút <strong>Chia sẻ</strong> ở thanh Safari
+                        </div>
+                        <span class="pwa-ios-step-icon">⬆️</span>
+                    </div>
+                    <div class="pwa-ios-step">
+                        <div class="pwa-ios-step-num">2</div>
+                        <div class="pwa-ios-step-text">
+                            Chọn <strong>"Thêm vào màn hình chính"</strong>
+                        </div>
+                        <span class="pwa-ios-step-icon">＋</span>
+                    </div>
+                    <div class="pwa-ios-step">
+                        <div class="pwa-ios-step-num">3</div>
+                        <div class="pwa-ios-step-text">
+                            Bấm <strong>Thêm</strong> — xong! Icon xuất hiện trên màn hình
+                        </div>
+                        <span class="pwa-ios-step-icon">✅</span>
+                    </div>
+                </div>
+                <button class="pwa-ios-modal-close" id="pwa-ios-modal-close">Đã hiểu, đóng lại</button>
+            </div>
+        </div>
+
+    </div><!-- /#app -->
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7"></script>

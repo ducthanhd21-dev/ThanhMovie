@@ -1727,3 +1727,137 @@ const App = {
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
 });
+
+// ============================================================
+// 21. PWA INSTALL BANNER
+// ============================================================
+const PWAInstall = {
+  deferredPrompt: null,          // Android BeforeInstallPromptEvent
+  DISMISSED_KEY: 'pwa_banner_dismissed',
+  INSTALLED_KEY: 'pwa_installed',
+
+  isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  },
+
+  isInStandaloneMode() {
+    return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+  },
+
+  wasDismissed() {
+    // Re-show banner after 7 days even if dismissed
+    const ts = localStorage.getItem(this.DISMISSED_KEY);
+    if (!ts) return false;
+    return (Date.now() - parseInt(ts, 10)) < 7 * 24 * 60 * 60 * 1000;
+  },
+
+  init() {
+    // Don't show if already installed as PWA
+    if (this.isInStandaloneMode()) return;
+    // Don't show if user recently dismissed
+    if (this.wasDismissed()) return;
+
+    // ── Android / Desktop Chrome: listen for install prompt ──
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      this.showBanner();
+    });
+
+    // ── iOS Safari: show banner with manual guide ────────────
+    if (this.isIOS()) {
+      // Show after a small delay so the page loads first
+      setTimeout(() => this.showBanner(), 3000);
+    }
+
+    // ── After successful install, hide banner ────────────────
+    window.addEventListener('appinstalled', () => {
+      this.hideBanner();
+      localStorage.setItem(this.INSTALLED_KEY, '1');
+      UI.showToast('🎉 ThanhMovie đã được cài đặt thành công!', 'success');
+    });
+
+    this.bindEvents();
+  },
+
+  showBanner() {
+    const banner = document.getElementById('pwa-banner');
+    if (!banner) return;
+    banner.style.display = 'flex';
+    // Force reflow then add .show for animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => banner.classList.add('show'));
+    });
+  },
+
+  hideBanner() {
+    const banner = document.getElementById('pwa-banner');
+    if (!banner) return;
+    banner.classList.remove('show');
+    setTimeout(() => { banner.style.display = 'none'; }, 500);
+  },
+
+  showIOSModal() {
+    const modal = document.getElementById('pwa-ios-modal');
+    if (!modal) return;
+    modal.classList.add('show');
+    // Close on backdrop click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) this.closeIOSModal();
+    }, { once: true });
+  },
+
+  closeIOSModal() {
+    const modal = document.getElementById('pwa-ios-modal');
+    if (modal) modal.classList.remove('show');
+  },
+
+  async triggerInstall() {
+    if (this.isIOS()) {
+      // iOS: show manual guide modal
+      this.showIOSModal();
+      return;
+    }
+
+    if (!this.deferredPrompt) {
+      // Prompt not available (already installed / not supported)
+      UI.showToast('Hãy dùng Chrome / Edge để cài app nhé!', 'info');
+      return;
+    }
+
+    // Android: trigger native install dialog
+    this.deferredPrompt.prompt();
+    const { outcome } = await this.deferredPrompt.userChoice;
+    this.deferredPrompt = null;
+
+    if (outcome === 'accepted') {
+      this.hideBanner();
+    }
+  },
+
+  dismiss() {
+    this.hideBanner();
+    localStorage.setItem(this.DISMISSED_KEY, Date.now().toString());
+  },
+
+  bindEvents() {
+    document.getElementById('pwa-btn-install')?.addEventListener('click', () => {
+      this.triggerInstall();
+    });
+
+    document.getElementById('pwa-btn-dismiss')?.addEventListener('click', () => {
+      this.dismiss();
+    });
+
+    document.getElementById('pwa-ios-modal-close')?.addEventListener('click', () => {
+      this.closeIOSModal();
+      this.dismiss();
+    });
+  }
+};
+
+// Init PWA banner after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  PWAInstall.init();
+});
